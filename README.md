@@ -29,6 +29,10 @@ AGS v3.1.2+
 
 Defines the current version of the module, formatted as a `float`.
 
+#### Stack_VERSION_130
+
+Defines version 1.3 of the module.
+
 #### Stack_VERSION_120
 
 Defines version 1.2 of the module.

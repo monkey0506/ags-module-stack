@@ -30,6 +30,10 @@ AGS v3.1.2+
 
 Defines the current version of the module, formatted as a `float`.
 
+#### Stack_VERSION_130
+
+Defines version 1.3 of the module.
+
 #### Stack_VERSION_120
 
 Defines version 1.2 of the module.
@@ -358,6 +362,17 @@ CONNECTION WITH THE MODULE OR THE USE OR OTHER DEALINGS IN THE MODULE.
 
 # Changelog
 
+## Version 1.3
+
+Version:     1.3  
+Author:      monkey0506  
+Date:        21 August 2009  
+Description: Fixed bug with `String.Format` and large `Stack`s (`String.Format` has a limit on the
+size of the `String` it can return; replaced where applicable with `String.Append` instead). Also
+added further support to prevent issues with `Stack.Copy`. Previously if you pushed the same stack
+copy onto a single stack multiple times there would be problems with the internal data structure.
+This should resolve that.
+
 ## Version 1.2a
 
 Version:     1.2a  
@@ -389,7 +404,8 @@ Description: First public release.
 
 #ifdef AGS_SUPPORTS_IFVER
   #ifver 3.1.2
-    #define Stack_VERSION 1.2
+    #define Stack_VERSION 1.3
+    #define Stack_VERSION_130
     #define Stack_VERSION_120
     #define Stack_VERSION_100
   #endif

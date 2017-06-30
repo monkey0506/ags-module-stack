@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 1.3
+
+Version:     1.3  
+Author:      monkey0506  
+Date:        21 August 2009  
+Description: Fixed bug with `String.Format` and large `Stack`s (`String.Format` has a limit on the
+size of the `String` it can return; replaced where applicable with `String.Append` instead). Also
+added further support to prevent issues with `Stack.Copy`. Previously if you pushed the same stack
+copy onto a single stack multiple times there would be problems with the internal data structure.
+This should resolve that.
+
 ## Version 1.2a
 
 Version:     1.2a  
