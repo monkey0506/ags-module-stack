@@ -1,0 +1,19 @@
+language: csharp
+
+before_install:
+  - chmod +x make_scm.sh
+  - chmod +x make_zip.sh
+
+script:
+  - ./make_scm.sh Stack
+  - ./make_zip.sh Stack CHANGELOG.md LICENSE.md README.md "Stack Extension Guide.md"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: I7l+O8EzqUYn7Xmt4qc37IDTyEjTK4mrWsZSSBRjC0ms67adqmy4+yeoXupOn6qmR89zsvOMQm56+eD6w58Mri5fZCTpmaxJQAo/IT+xV/6Kvgv3UX+D+ucVfyPL+bqf03xv416NI4baeKVvbbQibNavYxmDe9wGjvk/iwF1HVzswBo7ByCMrAjF0pbM/Sxdi46jHMoDCE1Y7obhPmo3lqsNByL5DhJExiKRRePVvxg1c+DGxU3FV0RQ4Kl8KsEotNCViKweYFKasVZMFdlUrCeMUteMvsdAy09b3njR5RGHCYSBLnC5mIaTQVR9RMNUhnxtO9s9hUPfRqwmYBmHffW2UrX6svUOzqwH1Da1F44XCqVF2EDL2X5g4l47XryJGIkBXLle3NjZXNX56dfyI3G0L1hEMyOwz5rp099ZMTrZI5Q8uZDVcdVofK8r+7sYbViEaK4JDr2GTKxqBzAqWhgIOiAiNkxi8kTQqoh1zhz773EKdmXI89iKXUKT8oIKvLasFzetmQZxXdAmHaNjskRAbxHDxhI5G24hKtr8ntJCvNqsf25rpIALTuE173Pdr4kqvtKXda7ifP9tNPLsfWArmaf6rVDXJQWUintzfdiFltJNcduI8z/ObGUeLNQyW4ss6DfZ8HZ+s85BzVZhD5qRKPJAzBzhD5bFK0jsfrk=
+  file: Stack.zip
+  skip_cleanup: true
+  on:
+    repo: monkey0506/ags-module-stack
+    tags: true

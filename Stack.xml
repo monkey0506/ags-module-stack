@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AGSModule>
+  <Name>Stack</Name>
+  <Description>Introduces a vectorized stack type.</Description>
+  <Author>monkey0506</Author>
+  <Version>v1.0</Version>
+  <Key>918333590</Key>
+</AGSModule>
