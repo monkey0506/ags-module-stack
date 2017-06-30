@@ -30,6 +30,10 @@ AGS v3.1.2+
 
 Defines the current version of the module, formatted as a `float`.
 
+#### Stack_VERSION_120
+
+Defines version 1.2 of the module.
+
 #### Stack_VERSION_100
 
 Defines version 1.0 of the module.
@@ -46,6 +50,7 @@ Defines version 1.0 of the module.
 - `eStackDataGUI`: The stored data is a GUI
 - `eStackDataGUIControl`: The stored data is a GUIControl
 - `eStackDataStack`: The stored data is a Stack object
+- `eStackDataInvalid`: The object does not contain any valid StackData
 
 #### StackPopType
 
@@ -147,6 +152,18 @@ object can **only** be used with/by the following functions:
 
 Returns a StackData object containing `theFloat`.
 
+#### Stack.GetItemsArray
+
+`StackData[] Stack.GetItemsArray()`
+
+Returns an array containing each of the items in the stack. The size of the array will be the same
+as the [ItemCount](#stackitemcount). If `ItemCount` is 0, returns `null`.
+
+*NOTE:* Since the stacks are all vectorized, it's not practical for this to be implemented as a
+property. Doing so would require a static size specified for the size of the property. This method
+allows you to get the items in a dynamic array without having to limit the number of items that can
+be returned this way.
+
 #### Stack.GUIControlToData
 
 `static StackData Stack.GUIControlToData(GUIControl *theControl)`
@@ -182,6 +199,14 @@ Returns whether the stack has **no** items in it.
 `writeprotected int Stack.ItemCount`
 
 Returns the number of items stored in the stack.
+
+#### Stack.LoadFromFile
+
+`void Stack.LoadFromFile(File *theFile)`
+
+Attempts to read back a `Stack` object from `theFile`, and load it into this stack. If `theFile`
+was not written by [File.WriteStack](#filewritestack) this will crash the game, just as the normal
+`File` functions do.
 
 #### Stack.LoadFromStack
 
@@ -222,6 +247,25 @@ by [Stack.Copy](#stackcopy).
 `static StackData Stack.StringToData(String theString)`
 
 Returns a StackData object containing `theString`.
+
+---------
+
+### File
+
+#### File.WriteStack
+
+`bool File.WriteStack(StackData stackCopy)`
+
+Writes the stack data from `stackCopy` to the file. If `stackCopy` does not contain a valid stack,
+or there is an error writing to the file, returns `false`.
+
+#### File.ReadStackBack
+
+`StackData File.ReadStackBack()`
+
+Attempts to read back a `Stack` object from the file. If the file was not written by
+[File.WriteStack](#filewritestack) this will crash the game, just as the normal `File` functions
+do.
 
 ## Examples
 
@@ -314,6 +358,19 @@ CONNECTION WITH THE MODULE OR THE USE OR OTHER DEALINGS IN THE MODULE.
 
 # Changelog
 
+## Version 1.2
+
+Version:     1.2  
+Author:      monkey0506  
+Date:        28 March 2009  
+Description: Added `Stack.GetItemsArray`, `File.WriteStack`, `File.ReadStackBack`, and  
+`Stack.LoadFromFile` functions. The module now exports `StackDataFormat` so it can be used by other
+scripts for extending the module. It is not imported, it must be locally imported to the script
+requiring it. Modified the way `Stack.Copy` formats the data to better prevent collisions. Fixed a
+bug with `Stack.Push` where if you were adding an item at a specific index `ItemCount` was still
+getting increased. Added data type `eStackDataInvalid` to indicate that the object is not valid
+`StackData`. Included module information in the Properties pane for the script.
+
 ## Version 1.0
 
 Version:     1.0  
@@ -325,7 +382,8 @@ Description: First public release.
 
 #ifdef AGS_SUPPORTS_IFVER
   #ifver 3.1.2
-    #define Stack_VERSION 1.0
+    #define Stack_VERSION 1.2
+    #define Stack_VERSION_120
     #define Stack_VERSION_100
   #endif
 #endif
@@ -350,7 +408,8 @@ enum StackDataType { // this defines the type of data actually stored
   eStackDataInventoryItem = 'n',
   eStackDataGUI = 'g',
   eStackDataGUIControl = 't',
-  eStackDataStack = 'k' // this actually indicates this data is a copy of another Stack, returned from Stack.Copy
+  eStackDataStack = 'k', // this actually indicates this data is a copy of another Stack, returned from Stack.Copy
+  eStackDataInvalid = 0 // indicates the object is not valid StackData
 };
 
 ///Stack module: Returns the integer value of this StackData object. Uses 'null' value of 0.
@@ -419,4 +478,14 @@ struct Stack {
   import StackData Copy();
   ///Stack module: Replaces this stack's data with the data from OTHERSTACK. OTHERSTACK must have been formatted by Stack.Copy.
   import bool LoadFromStack(StackData otherStack);
+  ///Stack module: Replaces this stack's data with the object saved in THEFILE.
+  import void LoadFromFile(File *theFile);
 };
+
+///Stack module: Returns an array containing the items in the stack.
+import StackData[] GetItemsArray(this Stack*); // since we are returning a dynamic array, we can't put this in the actual struct definition
+
+///Stack module: Saves the stack data to the file.
+import bool WriteStack(this File*, StackData stackCopy);
+///Stack module: Attempts to read a stack object back from the file.
+import StackData ReadStackBack(this File*);

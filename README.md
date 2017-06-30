@@ -29,6 +29,10 @@ AGS v3.1.2+
 
 Defines the current version of the module, formatted as a `float`.
 
+#### Stack_VERSION_120
+
+Defines version 1.2 of the module.
+
 #### Stack_VERSION_100
 
 Defines version 1.0 of the module.
@@ -45,6 +49,7 @@ Defines version 1.0 of the module.
 - `eStackDataGUI`: The stored data is a GUI
 - `eStackDataGUIControl`: The stored data is a GUIControl
 - `eStackDataStack`: The stored data is a Stack object
+- `eStackDataInvalid`: The object does not contain any valid StackData
 
 #### StackPopType
 
@@ -146,6 +151,18 @@ object can **only** be used with/by the following functions:
 
 Returns a StackData object containing `theFloat`.
 
+#### Stack.GetItemsArray
+
+`StackData[] Stack.GetItemsArray()`
+
+Returns an array containing each of the items in the stack. The size of the array will be the same
+as the [ItemCount](#stackitemcount). If `ItemCount` is 0, returns `null`.
+
+*NOTE:* Since the stacks are all vectorized, it's not practical for this to be implemented as a
+property. Doing so would require a static size specified for the size of the property. This method
+allows you to get the items in a dynamic array without having to limit the number of items that can
+be returned this way.
+
 #### Stack.GUIControlToData
 
 `static StackData Stack.GUIControlToData(GUIControl *theControl)`
@@ -181,6 +198,14 @@ Returns whether the stack has **no** items in it.
 `writeprotected int Stack.ItemCount`
 
 Returns the number of items stored in the stack.
+
+#### Stack.LoadFromFile
+
+`void Stack.LoadFromFile(File *theFile)`
+
+Attempts to read back a `Stack` object from `theFile`, and load it into this stack. If `theFile`
+was not written by [File.WriteStack](#filewritestack) this will crash the game, just as the normal
+`File` functions do.
 
 #### Stack.LoadFromStack
 
@@ -221,6 +246,25 @@ by [Stack.Copy](#stackcopy).
 `static StackData Stack.StringToData(String theString)`
 
 Returns a StackData object containing `theString`.
+
+---------
+
+### File
+
+#### File.WriteStack
+
+`bool File.WriteStack(StackData stackCopy)`
+
+Writes the stack data from `stackCopy` to the file. If `stackCopy` does not contain a valid stack,
+or there is an error writing to the file, returns `false`.
+
+#### File.ReadStackBack
+
+`StackData File.ReadStackBack()`
+
+Attempts to read back a `Stack` object from the file. If the file was not written by
+[File.WriteStack](#filewritestack) this will crash the game, just as the normal `File` functions
+do.
 
 ## Examples
 
