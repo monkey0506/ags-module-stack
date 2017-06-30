@@ -8,21 +8,25 @@ The Stack module introduces a vectorized stack type into which you can place any
 Great if you need to store data of various different types, or all of one type; this module can
 handle all of your data storage needs!
 
-## Foreword: About Stacks
-
-You can think of a "stack" as a special sort of array. Just like an array can hold multiple
-variables, so can a stack. The major differences are the fact that 1) these stacks are *vectorized*
-and 2) they are *generic*. The stacks being *vectorized* means that you don't have to explicitly
-state the size of the stack prior to using it. It will grow/shrink as needed. This is also great as
-it optimizes the memory consumption. The fact that the stacks are *generic* means that they do not
-abide to any single data type. You can "push" any type of data, from basic `int`s and `float`s to
-`GUI`s and even other `Stack`s! You *do* have to convert your data when pushing it onto or popping
-it off of the stack, but the conversion is simple. Below is the function list, after that there are
-examples to put everything into perspective for you!
-
 ## Dependencies
 
-AGS v3.1.2+
+AGS 3.4.0.3 (Alpha) or higher
+
+## What's New
+
+The Stack module v2.0 introduces some breaking API changes, so it can't be used to directly replace
+v1.3, but there are some major improvements, and updating to the new version shouldn't be too much
+of a hassle.
+
+Previous versions of the Stack module relied on serializing all of your data into a `String` before
+it could be stored in a `Stack`. This made the stacks extremely inefficient. Improvements to the
+AGS engine have made it possible to keep track of your data with no added penalty to size in memory
+while seeing huge boosts in speed.
+
+With the new version there is no longer a requirement to use messy conversion operators before your
+data can be added to a `Stack`. Special functions have been added to make this easier. You can also
+now access items in the `Stack` directly (with no speed penalty), and convert them back into their
+basic data type with a simpler interface. See the changelog for full list of changes.
 
 ## Macros (#define-s)
 
@@ -30,17 +34,9 @@ AGS v3.1.2+
 
 Defines the current version of the module, formatted as a `float`.
 
-#### Stack_VERSION_130
+#### Stack_VERSION_200
 
-Defines version 1.3 of the module.
-
-#### Stack_VERSION_120
-
-Defines version 1.2 of the module.
-
-#### Stack_VERSION_100
-
-Defines version 1.0 of the module.
+Defines version 2.0 of the module.
 
 ## Enumerated types
 
@@ -53,10 +49,9 @@ Defines version 1.0 of the module.
 - `eStackDataInventoryItem`: The stored data is an InventoryItem
 - `eStackDataGUI`: The stored data is a GUI
 - `eStackDataGUIControl`: The stored data is a GUIControl
-- `eStackDataStack`: The stored data is a Stack object
 - `eStackDataInvalid`: The object does not contain any valid StackData
 
-#### StackPopType
+#### StackPopStyle
 
 - `eStackPopFirstInLastOut`: The first item pushed onto the stack will be the last item popped back
   out. This is the default setting for all stacks.
@@ -64,64 +59,72 @@ Defines version 1.0 of the module.
   back out.
 - `eStackPopRandom`: All items on the stack are popped out in random order.
 
-#### StackSettings
-
-- `eStackStrictTypes`: Sets whether the module obeys data types (`true`) or whether conversions are
-possible (`false`). The default value is `false`.
-
-**NOTE:** Data of the type `eStackDataStack` will ignore this setting. Data of this type may only
-be used/returned by functions which specifically state it in their description below. Conversion is
-not possible for this type.
-
 ## Functions and Properties
 
 ### StackData
 
-#### StackData.GetAsCharacter
+#### StackData.AsType properties
 
-`Character* StackData.GetAsCharacter()`
+##### StackData.AsCharacter
 
-Returns this data as a `Character`.
+##### StackData.AsFloat
 
-#### StackData.GetAsFloat
+##### StackData.AsGUIControl
 
-`float StackData.GetAsFloat()`
+##### StackData.AsGUI
 
-Returns this data as a `float`. Uses 0 as a `null` value.
+##### StackData.AsInt
 
-#### StackData.GetAsGUIControl
+##### StackData.AsInventoryItem
 
-`GUIControl* StackData.GetAsGUIControl()`
+`Character* StackData.AsCharacter`  
+`float StackData.AsFloat`  
+`GUIControl* StackData.AsGUIControl`  
+`GUI* StackData.AsGUI`  
+`int StackData.AsInt`  
+`InventoryItem* StackData.AsInventoryItem`  
+`String StackData.AsString`
 
-Returns this data as a `GUIControl`.
+Returns the value represented by this `StackData`, or `null` (0 for `int` and `float`) if the [Type](#stackdatatype-2) does not match.
 
-#### StackData.GetAsGUI
+#### StackData.IsNullOrInvalid
 
-`GUI* StackData.GetAsGUI()`
+`static bool StackData.IsNullOrInvalid(StackData)`
 
-Returns this data as a `GUI`.
+Returns whether the `StackData` object is `null` or invalid (type is `eStackDataInvalid`).
 
-#### StackData.GetAsInt
+#### StackData.TypeToData functions
 
-`int StackData.GetAsInt()`
+#### StackData.CharacterToData
 
-Returns this data as an `int`. Uses 0 as a `null` value.
+##### StackData.FloatToData
 
-#### StackData.GetAsInventoryItem
+##### StackData.GUIControlToData
 
-`InventoryItem* StackData.GetAsInventoryItem()`
+##### StackData.GUIToData
 
-Returns this data as an `InventoryItem`.
+##### StackData.IntToData
 
-#### StackData.GetAsString
+##### StackData.InventoryItemToData
 
-`String StackData.GetAsString()`
+##### StackData.StringToData
 
-Returns this data as a `String`.
+##### StackData.StringCachedToData
 
-#### StackData.GetType
+`static StackData StackData.CharacterToData(Character*)`  
+`static StackData StackData.FloatToData(float)`  
+`static StackData StackData.GUIControlToData(GUIControl*)`  
+`static StackData StackData.GUIToData(GUI*)`  
+`static StackData StackData.IntToData(int)`  
+`static StackData StackData.InventoryItemToData(InventoryItem*)`  
+`static StackData StackData.StringToData(String)`  
+`static StackData StackData.StringCachedToData(int cacheID)`
 
-`StackDataType StackData.GetType()`
+Returns a StackData object holding the specified value.
+
+#### StackData.Type
+
+`StackDataType StackData.Type`
 
 Returns the [type](#stackdatatype) of this data.
 
@@ -129,219 +132,238 @@ Returns the [type](#stackdatatype) of this data.
 
 ### Stack
 
-#### Stack.CharacterToData
+#### Stack.Capacity
 
-`static StackData Stack.CharacterToData(Character *theCharacter)`
+`int Stack.Capacity`
 
-Returns a StackData object containing `theCharacter`.
+Gets or sets the capacity of the `Stack`. May only be increased; maximum is 1000000. Setting the
+capacity can prevent unnecessary copying at the cost of consuming more memory. For huge `Stack`s
+this can make your code faster by a factor of as much as *six or seven times*, so you should
+especially set this before adding several items at once.
+
+*Example:*
+
+    Stack stack;
+    stack.Capacity = 512; // set the capacity first
+    int i;
+    for (i = 0; i < 500; i++)
+    {
+      stack.PushInt(i * 5); // add a bunch of integers
+    }
 
 #### Stack.Clear
 
 `void Stack.Clear()`
 
-Removes all items from the stack.
+Removes all items from a Stack.
 
-#### Stack.Copy
+#### Stack.GetStringCachedID
 
-`StackData Stack.Copy()`
+`static int Stack.GetStringCachedID(String)`
 
-Produces a specially formatted `StackData` object which contains a *copy* of this stack. This
-object can **only** be used with/by the following functions:
-[StackData.GetType](#stackdatagetype), [Stack.Push](#stackpush), [Stack.Pop](#stackpop),
-[Stack.LoadFromStack](#stackloadfromstack).
+Returns a unique ID that matches the specified `String` in the internal cache. See
+[Stack.StringCacheCapacity](#stackstringcachecapacity) for more details; you should use this when
+using repeated `String` operations on Stacks.
 
-#### Stack.FloatToData
+*Example:*
 
-`static StackData Stack.FloatToData(float theFloat)`
+    String text = "Hello World!";
+    int textID = Stack.GetStringCachedID(text);
+    // push 5 copies of TEXT onto a Stack
+    Stack stack;
+    int i;
+    for (i = 0; i < 5; i++)
+    {
+      stack.PushStringCached(textID);
+    }
 
-Returns a StackData object containing `theFloat`.
+#### Stack.Items
 
-#### Stack.GetItemsArray
+`StackData Stack.Items[int index]`
 
-`StackData[] Stack.GetItemsArray()`
+Gets or sets the item at `index` in the `Stack`. If reading an invalid `index`, an invalid
+`StackData` object is returned; if setting an invalid `index`, nothing happens. This is used to
+read or overwrite existing items only, it cannot append new items to the Stack; instead use
+[Stack.Push](#stackpush) for that. Items are indexed from zero, up to
+[Stack.ItemCount](#stackitemcount) - 1.
 
-Returns an array containing each of the items in the stack. The size of the array will be the same
-as the [ItemCount](#stackitemcount). If `ItemCount` is 0, returns `null`.
+*Example:*
 
-*NOTE:* Since the stacks are all vectorized, it's not practical for this to be implemented as a
-property. Doing so would require a static size specified for the size of the property. This method
-allows you to get the items in a dynamic array without having to limit the number of items that can
-be returned this way.
-
-#### Stack.GUIControlToData
-
-`static StackData Stack.GUIControlToData(GUIControl *theControl)`
-
-Returns a StackData object containing `theControl`.
-
-#### Stack.GUIToData
-
-`static StackData Stack.GUIToData(GUI *theGUI)`
-
-Returns a StackData object containing `theGUI`.
-
-#### Stack.IntToData
-
-`static StackData Stack.IntToData(int theInt)`
-
-Returns a StackData object containing `theInt`.
-
-#### Stack.InventoryItemToData
-
-`static StackData Stack.InventoryItemToData(InventoryItem *theItem)`
-
-Returns a StackData object containing `theItem`.
-
-#### Stack.IsEmpty
-
-`bool Stack.IsEmpty()`
-
-Returns whether the stack has **no** items in it.
+    Stack stack;
+    stack.PushInt(5);
+    stack.PushInt(10);
+    stack.PushInt(15);
+    Display("The second item is: %d", stack.Items[1].AsInt); // Displays 10
+    stack.Items[1] = StackData.IntToData(42);
+    Display("It is now: %d", stack.Items[i].AsInt); // Displays 42
 
 #### Stack.ItemCount
 
-`writeprotected int Stack.ItemCount`
+readonly int Stack.ItemCount
 
-Returns the number of items stored in the stack.
+Returns the number of items the `Stack` currently holds. This is one higher than the maximum valid
+index for [Stack.Items](#stackitems).
 
-#### Stack.LoadFromFile
+*Example:*
 
-`void Stack.LoadFromFile(File *theFile)`
-
-Attempts to read back a `Stack` object from `theFile`, and load it into this stack. If `theFile`
-was not written by [File.WriteStack](#filewritestack) this will crash the game, just as the normal
-`File` functions do.
-
-#### Stack.LoadFromStack
-
-`bool Stack.LoadFromStack(StackData otherStack)`
-
-Replaces this stack's data with the data from `otherStack`. `otherStack` must be a `StackData`
-object which was formatted by [Stack.Copy](#stackcopy) for this function to operate. Returns
-whether the data was successfully loaded.
+    Stack stack;
+    stack.PushInt(5);
+    stack.PushInt(10);
+    stack.PushInt(15);
+    Display("The stack is holding %d items.", stack.ItemCount); // Displays 3
 
 #### Stack.Pop
 
-`StackData Stack.Pop(optional bool remove, optional int index)`
+`StackData Stack.Pop(optional int index, optional bool remove)`
 
-Pops an item off the stack (the index is determined by the stack's [PopType](#stackpoptype-1)
-setting). You may optionally choose whether or not to `remove` the item from the stack and/or
-supply an alternate `index`. The data returned may be a `StackData` object of type
-`eStackDataStack`. See the definition of this type and [Stack.Copy](#stackcopy) for further
-information.
+Pops a value from the `Stack`, or returns `null` on error. You may optionally specify an `index`,
+or choose to leave the item on the `Stack`. Typically if you are not removing the item then you
+would use the [Stack.Items](#stackitems) array instead. There are also specialized functions if you
+know the type of data in the `Stack`.
 
-#### Stack.PopType
+*Example:*
 
-`StackPopType Stack.PopType`
+    Stack stack;
+    stack.PushInt(42);
+    StackData item = stack.Pop();
+    Display("Items in the stack: %d, popped item: %d", stack.ItemCount, item.AsInt); // Displays 0 and 42
 
-Gets/sets the `StackPopType` for this stack, which controls the order in which items are popped off
-the stack. The default setting for this is `eStackPopFirstInLastOut`.
+#### Stack.PopStyle
+
+`StackPopStyle Stack.PopStyle`
+
+Gets or sets the order that items are popped from a `Stack` with the [Pop](#stackpop) functions.
+The default is `eStackPopFirstInLastOut`.
+
+*Example:*
+
+    Stack stack;
+    stack.PopStyle = eStackFirstInFirstOut; // sets the stack to FIFO mode
+
+#### Stack.PopType functions
+
+##### Stack.PopCharacter
+
+##### Stack.PopFloat
+
+##### Stack.PopGUI
+
+##### Stack.PopGUIControl
+
+##### Stack.PopInt
+
+##### Stack.PopInventoryItem
+
+##### Stack.PopString
+
+`Character* Stack.PopCharacter(optional int index, optional bool remove)`  
+`float Stack.PopFloat(optional int index, optional bool remove)`  
+`GUI* Stack.PopGUI(optional int index, optional bool remove)`  
+`GUIControl* Stack.PopGUIControl(optional int index, optional bool remove)`  
+`int Stack.PopInt(optional int index, optional bool remove)`  
+`InventoryItem* Stack.PopInventoryItem(optional int index, optional bool remove)`  
+`String Stack.PopString(optional int index, optional bool remove)`
+
+Specialized functions to pop an item off of a `Stack`, similar to [Stack.Pop](#stackpop).
+
+*Note:* These functions do not leave the item on the `Stack` if the types do not match, so if you
+are unsure of the type of data you are trying to retrieve, use `Stack.Pop` instead.
 
 #### Stack.Push
 
-`bool Stack.Push(StackData data, optional int index)`
+`bool Stack.Push(StackData, optional int index, optional bool insert)`
 
-Pushes `data` onto the end of the stack. If `index` is provided, the item at that index in the
-stack will be replaced with `data`. Returns whether the operation was successful. Rejects `null`
-data and invalid indices. This function will accept `StackData` objects which have been formatted
-by [Stack.Copy](#stackcopy).
+Pushes the `StackData` object into the `Stack`, or returns `false` on error. You may *optionally*
+specify the `index` for the item to be entered into the `Stack`, or overwrite an existing item.
+You typically would only need this if you are moving an item from one `Stack` to another, and use
+the specialized functions for general use.
 
-#### Stack.StringToData
+*Example:*
 
-`static StackData Stack.StringToData(String theString)`
+    Stack stack;
+    stack.Push(StackData.IntToData(5)); // UGLY! Use Stack.PushInt instead!
+    Stack otherStack;
+    otherStack.Push(stack.Pop()); // pop an item off one Stack and push it onto another
 
-Returns a StackData object containing `theString`.
+#### Stack.PushType functions
 
----------
+##### Stack.PushCharacter
 
-### File
+##### Stack.PushFloat
 
-#### File.WriteStack
+##### Stack.PushGUI
 
-`bool File.WriteStack(StackData stackCopy)`
+##### Stack.PushGUIControl
 
-Writes the stack data from `stackCopy` to the file. If `stackCopy` does not contain a valid stack,
-or there is an error writing to the file, returns `false`.
+##### Stack.PushInt
 
-#### File.ReadStackBack
+##### Stack.PushInventoryItem
 
-`StackData File.ReadStackBack()`
+##### Stack.PushString
 
-Attempts to read back a `Stack` object from the file. If the file was not written by
-[File.WriteStack](#filewritestack) this will crash the game, just as the normal `File` functions
-do.
+`bool Stack.PushInt(int, optional int index, optional bool insert)`
+`bool Stack.PushFloat(float, optional int index, optional bool insert)`
+`bool Stack.PushString(String, optional int index, optional bool insert)`
+`bool Stack.PushCharacter(Character*, optional int index, optional bool insert)`
+`bool Stack.PushInventoryItem(InventoryItem*, optional int index, optional bool insert)`
+`bool Stack.PushGUI(GUI*, optional int index, optional bool insert)`
+`bool Stack.PushGUIControl(GUIControl, optional int index, optional bool insert)`
 
-## Examples
+Specialized methods to make pushing items onto a `Stack` easier.
 
-This module is admittedly a bit intimidating, so here's a couple examples of how the scripts can be used.
+*Note:* If you are pushing the same `String` to a `Stack` more than once, you may consider using
+[Stack.PushStringCached](#stackpushstringcached) instead. See that function for more info.
 
-### Stack definition
+*Example:*
 
-Here we'll just define a `Stack` to use with the rest of our examples.
+    Stack stack;
+    stack.PushInt(42);
+    stack.PushFloat(3.1415);
+    stack.PushString("Hello World!");
 
-     Stack mystack;
-     mystack.PopType = eStackPopFirstInFirstOut; // pop the items out in the same order they are pushed in
+#### Stack.PushStringCached
 
-We'll assume this definition for the rest of the examples.
+`bool Stack.PushStringCached(int cachedID, optional int index, optional bool insert)`
 
-### Pushing int data
+Pushes a cached `String` onto the `Stack`. Due to certain technical restrictions in AGS, `String`
+operations on `Stack`s may be slow. If you are pushing the same `String` onto a `Stack` more than
+once, consider using this function instead as it is faster. You can use `Stack.GetStringCachedID`
+to obtain the unique ID that this function uses as its first parameter. Also be sure to set
+[Stack.StringCacheCapacity](#stackstringcachecapacity) as needed to boost performance when working
+with `String`s.
 
-Let's push some integers onto our stack, and pop them back out!
-     
-     mystack.Push(Stack.IntToData(351)); // note we must convert our ints to our generic StackData type
-     mystack.Push(Stack.IntToData(493));
-     mystack.Push(Stack.IntToData(826));
-     Display("Our stack has %d items in it.", mystack.ItemCount);
-     int i = 0;
-     int size = mystack.ItemCount; // note that since we are popping items off our stack, it is shrinking. we must store its size first!
-     while (i < size)
-     {
-       StackData data = mystack.Pop();
-       Display("The item from %d is %d", i, data.GetAsInt()); // we must convert our data back to an int to display it
-       i++;
-     }
-     Display("Our stack NOW has %d items in it.", mystack.ItemCount);
-     
-That will display the following:
-     
-     Our stack has 3 items in it.
-     The item from 0 is 351.
-     The item from 1 is 493.
-     The item from 2 is 826.
-     Our stack NOW has 0 items in it.
+*Note:* There is no penalty when popping `String`s off of a `Stack`, so there is no matching
+`PopStringCached` function. The performance penalty occurs when converting the `String` into
+`StackData`.
 
-### Stacked stacks
+*Example:*
 
-Let's try pushing stacks onto each other!
+    String text = "Hello World!";
+    int textID = Stack.GetStringCachedID(text);
+    // push 5 copies of TEXT onto a Stack
+    Stack stack;
+    int i;
+    for (i = 0; i < 5; i++)
+    {
+      stack.PushStringCached(textID);
+    }
 
-     mystack.Push(Stack.StringToData("Hello World!"));
-     mystack.Push(Stack.StringToData("This is the script."));
-     mystack.Push(Stack.StringToData("Well, I've got to go."));
-     mystack.Push(Stack.StringToData("Goodbye World."));
-     Stack otherstack;
-     StackData mystackCopy = mystack.Copy();
-     otherstack.Push(mystackCopy); // we use Stack.Copy to push mystack onto otherstack
-     Display("otherstack has %d item(s).", otherstack.ItemCount);
-     
-Displays:
-     
-     otherstack has 1 item(s).
-     
-*But wait! What I really wanted to do was just make `otherstack` a copy of the data in `mystack`.*
+#### Stack.StringCacheCapacity
 
-Don't worry, that's easy enough to fix!
-     
-     otherstack.Clear(); // removes all the items from otherstack (note this step is not necessary)
-     otherstack.LoadFromStack(mystackCopy); // load from stack will now copy each element from mystackCopy into otherstack
-     Display("otherstack NOW has %d item(s).", otherstack.ItemCount);
-     
-Displays:
-     
-     otherstack NOW has 4 item(s).
+`static int Stack.StringCacheCapacity`
 
-That's it for the example code. If you have any questions, comments, bug reports, etc. feel free to
-contact me on the forums. For any bug reports, please post to the forum thread so everyone can be
-notified!
+Gets or sets the capacity of the internal `String` cache. May only be increased; maximum value is
+1000000. Due to technical restrictions in AGS, `String`s are pooled/cached globally when converted
+to `StackData`. This may make `String` operations on `Stack`s slower than other types of data.
+Setting a high capacity may improve speeds if you are doing a lot of `String` operations. You
+should also use the *cached ID* (see [Stack.GetStringCachedID](#stackgetstringcachedid)) whenever
+possible for this reason. Increasing this value will consume more memory though, so use some
+discretion. Note that this value *will* automatically increase if needed.
+
+*Example:*
+
+    // game_start
+    Stack.StringCacheCapacity = 512;
 
 # Licensing
 
@@ -361,6 +383,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 CONNECTION WITH THE MODULE OR THE USE OR OTHER DEALINGS IN THE MODULE.
 
 # Changelog
+
+## Version 2.0
+
+Version:     2.0  
+Author:      monkey0506  
+Date:        25 January 2015  
+Description: Total rewrite of the module to take advantage of new features in AGS such as dynamic
+arrays in structs and pointers to managed types. Includes several breaking changes to the interface
+from v1.3, which is no longer supported. `StackData` is no longer a masked `String`, and is a
+formal data type; `StackDataType` no longer defines its members with character values; support
+removed for adding `Stack` objects within other `Stack`s; `StackData` functions have been replaced
+by member properties such as `AsInt`, `AsFloat`, `AsString`, etc.; the `eStackStrictTypes` setting
+has been removed, all types are now strongly enforced; static conversion functions to `StackData`
+have been moved from `Stack` type to static `StackData` functions; `StackPopType` has been renamed
+to `StackPopStyle`; *optional* `insert` parameter added to `Stack.Push`; parameters to `Stack.Pop`
+have now been reversed for improved interface and matching `Stack.Push`; `Stack.IsEmpty`,
+`Stack.Copy`, `Stack.LoadFromStack`, `Stack.LoadFromFile`, `Stack.GetItemsArray`,
+`File.WriteStack`, and `File.ReadStackBack` have all been removed; added ability to change `Stack`
+capacity; added `String` caching methods; and added specialized functions (`Stack.PushInt`, etc.)
+for a simpler interface.
 
 ## Version 1.3
 
@@ -403,112 +445,117 @@ Description: First public release.
 \*******************************************/
 
 #ifdef AGS_SUPPORTS_IFVER
-  #ifver 3.1.2
-    #define Stack_VERSION 1.3
-    #define Stack_VERSION_130
-    #define Stack_VERSION_120
-    #define Stack_VERSION_100
-  #endif
-#endif
-#ifndef Stack_VERSION
-  #error Stack module error!: This module requires AGS v3.1.2 or higher! Please upgrade to a higher version of AGS to use this module!
-#endif
+#ifver 3.4.0.3           
+#define Stack_VERSION_200
+#define Stack_VERSION 2.0
+#endif                   
+#endif                   
+#ifndef Stack_VERSION_200
+#error Stack module v2.0 requires AGS 3.4.0.3 or higher! Please upgrade to a newer version of AGS or use an older version of the module.
+#endif                   
 
-managed struct StackData {}; // this is a virtual data type, for autocomplete purposes only
-#define StackData String // $AUTOCOMPLETEIGNORE$
-/*
- Our virtual struct 'StackData' is actually replaced by the built-in String type. All
- of the functions declared for our virtual type are technically being declared on the
- String type. However, autocomplete does not detect this so the connection is
- invisible to the end-user.
-*/
-
-enum StackDataType { // this defines the type of data actually stored
-  eStackDataInt = 'i',
-  eStackDataFloat = 'f',
-  eStackDataString = 's',
-  eStackDataCharacter = 'c',
-  eStackDataInventoryItem = 'n',
-  eStackDataGUI = 'g',
-  eStackDataGUIControl = 't',
-  eStackDataStack = 'k', // this actually indicates this data is a copy of another Stack, returned from Stack.Copy
-  eStackDataInvalid = 0 // indicates the object is not valid StackData
+enum StackDataType
+{
+  eStackDataInt,
+  eStackDataFloat,
+  eStackDataString,
+  eStackDataCharacter,
+  eStackDataInventoryItem,
+  eStackDataGUI,
+  eStackDataGUIControl,
+  eStackDataInvalid = 0
 };
 
-///Stack module: Returns the integer value of this StackData object. Uses 'null' value of 0.
-import int GetAsInt(this StackData*);
-///Stack module: Returns the floating-point decimal value of this StackData object. Uses 'null' value of 0.0.
-import float GetAsFloat(this StackData*);
-///Stack module: Returns the String equivalent of this StackData object.
-import String GetAsString(this StackData*);
-/*
- IMPORTANT:
- 
-   Although 'StackData' is really just 'String', you should still use this function
-   to get the String data. The module internally adds extra markers to track what
-   type of data is being stored. This function will return the user-stored data.
-*/
-///Stack module: Returns the value of this StackData object as a Character.
-import Character* GetAsCharacter(this StackData*);
-///Stack module: Returns the value of this StackData object as an InventoryItem.
-import InventoryItem* GetAsInventoryItem(this StackData*);
-///Stack module: Returns the value of this StackData object as a GUI.
-import GUI* GetAsGUI(this StackData*);
-///Stack module: Returns the value of this StackData object as a GUIControl.
-import GUIControl* GetAsGUIControl(this StackData*);
-///Stack module: Returns the type of data stored in this StackData object.
-import StackDataType GetType(this StackData*);
-
-enum StackPopType { // specifies the order items are removed from the stack
-  eStackPopFirstInLastOut = 0, // the first item pushed in will be the last popped out, default behavior
-  eStackPopFirstInFirstOut, // the first item pushed in will be the first popped out
-  eStackPopRandom, // all items are popped out in a random sequence
+autoptr managed struct StackData
+{
+  ///Returns whether the StackData object is null or invalid.
+  import static bool IsNullOrInvalid(StackData); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the int value.
+  import static StackData IntToData(int); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the float value.
+  import static StackData FloatToData(float); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the String value.
+  import static StackData StringToData(String); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the cached String value.
+  import static StackData StringCachedToData(int cachedID); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the Character.
+  import static StackData CharacterToData(Character*); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the InventoryItem.
+  import static StackData InventoryItemToData(InventoryItem*); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the GUI.
+  import static StackData GUIToData(GUI*); // $AUTOCOMPLETESTATICONLY$
+  ///Returns a new StackData object containing the GUIControl.
+  import static StackData GUIControlToData(GUIControl*); // $AUTOCOMPLETESTATICONLY$
+  protected int _idata;
+  protected float _fdata;
+  protected int _scacheID;
+  readonly import attribute int AsInt;
+  readonly import attribute float AsFloat;
+  readonly import attribute String AsString;
+  readonly import attribute Character* AsCharacter;
+  readonly import attribute InventoryItem* AsInventoryItem;
+  readonly import attribute GUI* AsGUI;
+  readonly import attribute GUIControl *AsGUIControl;
+  writeprotected StackDataType Type;
 };
 
-enum StackSettings {
-  eStackStrictTypes = false // sets whether the module obeys data types (TRUE) or whether conversion is possible (FALSE)
+enum StackPopStyle
+{
+  eStackPopFirstInLastOut = 0,
+  eStackPopFirstInFirstOut,
+  eStackPopRandom
 };
 
-struct Stack {
-  ///Stack module: Returns a StackData object containing THEINT.
-  import static StackData IntToData(int theInt); // $AUTOCOMPLETESTATICONLY$
-  ///Stack module: Returns a StackData object containning THEFLOAT.
-  import static StackData FloatToData(float theFloat); // $AUTOCOMPLETESTATICONLY$
-  ///Stack module: Returns a StackData object containing THESTRING.
-  import static StackData StringToData(String theString); // $AUTOCOMPLETESTATICONLY$
-  ///Stack module: Returns a StackData object containing THECHARACTER.
-  import static StackData CharacterToData(Character *theCharacter); // $AUTOCOMPLETESTATICONLY$
-  ///Stack module: Returns a StackData object containing THEINVENTORYITEM.
-  import static StackData InventoryItemToData(InventoryItem *theItem); // $AUTOCOMPLETESTATICONLY$
-  ///Stack module: Returns a StackData object containing THEGUI.
-  import static StackData GUIToData(GUI *theGUI); // $AUTOCOMPLETESTATICONLY$
-  ///Stack module: Returns a StackData object containing THECONTROL.
-  import static StackData GUIControlToData(GUIControl *theControl); // $AUTOCOMPLETESTATICONLY$
-  protected StackData Data;
-  ///Stack module: Gets/sets the order in which items are popped off the stack.
-  StackPopType PopType;
-  ///Stack module: Returns the number of items currently in the stack.
+struct Stack
+{
+  ///Gets or sets the capacity of the internal String cache. May only be increased; maximum 1000000.
+  import static attribute int StringCacheCapacity; // $AUTOCOMPLETESTATICONLY$
+  ///Returns a unique ID that matches this String in the internal cache.
+  import static int GetStringCachedID(String); // $AUTOCOMPLETESTATICONLY$
+  protected StackData _items[];
+  protected int _capacity;
+  ///Gets or sets the capacity of this Stack. May only be increased; maximum 1000000.
+  import attribute int Capacity;
+  ///Gets or sets an item in this Stack.
+  import attribute StackData Items[];
+  ///Returns the number of items currently stored in this Stack.
   writeprotected int ItemCount;
-  ///Stack module: Pushes DATA onto the stack. You may alternately replace the item at INDEX.
-  import bool Push(StackData data, int index=SCR_NO_VALUE);
-  ///Stack module: Returns an item from the stack. You may optionally choose to leave the item in the stack and/or supply an alternate INDEX.
-  import StackData Pop(bool remove=true, int index=SCR_NO_VALUE);
-  ///Stack module: Clears all data stored in this stack.
+  ///Gets or sets the order that items are popped from this Stack with the Pop functions.
+  StackPopStyle PopStyle;
+  ///Removes all items from the Stack.
   import void Clear();
-  ///Stack module: Returns whether the stack is currently empty.
-  import bool IsEmpty();
-  ///Stack module: Returns a special StackData object containing a copy of this stack.
-  import StackData Copy();
-  ///Stack module: Replaces this stack's data with the data from OTHERSTACK. OTHERSTACK must have been formatted by Stack.Copy.
-  import bool LoadFromStack(StackData otherStack);
-  ///Stack module: Replaces this stack's data with the object saved in THEFILE.
-  import void LoadFromFile(File *theFile);
+  ///Pushes an item into this Stack with optional index. By default, inserts items; can be used for overwriting them.
+  import bool Push(StackData, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes an int value into this Stack.
+  import bool PushInt(int, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes a float value into this Stack.
+  import bool PushFloat(float, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes a String value into this Stack. May be slow; see documentation for more details.
+  import bool PushString(String, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes a cached String value into this Stack. Use Stack.GetStringCachedID to obtain the ID.
+  import bool PushStringCached(int cachedID, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes a Character into this Stack.
+  import bool PushCharacter(Character*, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes an InventoryItem into this Stack.
+  import bool PushInventoryItem(InventoryItem*, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes a GUI into this Stack.
+  import bool PushGUI(GUI*, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pushes a GUIControl into this Stack.
+  import bool PushGUIControl(GUIControl*, int index=SCR_NO_VALUE, bool insert=true);
+  ///Pops a value from this Stack. Returns null on error.
+  import StackData Pop(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops an int value from this Stack.
+  import int PopInt(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops a float value from this Stack.
+  import float PopFloat(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops a String value from this Stack.
+  import String PopString(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops a Character from this Stack.
+  import Character* PopCharacter(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops an InventoryItem from this Stack.
+  import InventoryItem* PopInventoryItem(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops a GUI from this Stack.
+  import GUI* PopGUI(int index=SCR_NO_VALUE, bool remove=true);
+  ///Pops a GUIControl from this Stack.
+  import GUIControl* PopGUIControl(int index=SCR_NO_VALUE, bool remove=true);
 };
-
-///Stack module: Returns an array containing the items in the stack.
-import StackData[] GetItemsArray(this Stack*); // since we are returning a dynamic array, we can't put this in the actual struct definition
-
-///Stack module: Saves the stack data to the file.
-import bool WriteStack(this File*, StackData stackCopy);
-///Stack module: Attempts to read a stack object back from the file.
-import StackData ReadStackBack(this File*);

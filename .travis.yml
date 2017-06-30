@@ -6,7 +6,7 @@ before_install:
 
 script:
   - ./make_scm.sh Stack
-  - ./make_zip.sh Stack CHANGELOG.md LICENSE.md README.md "Stack Extension Guide.md"
+  - ./make_zip.sh Stack CHANGELOG.md LICENSE.md README.md
 
 deploy:
   provider: releases
