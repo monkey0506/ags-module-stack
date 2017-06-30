@@ -6,4 +6,4 @@ EXPORTER=https://github.com/monkey0506/AGSModuleExporter/releases/download/$TAG/
 
 wget -O /tmp/AGSModuleExporter.exe "${EXPORTER}"
 
-mono --runtime=v4.0 /tmp/AGSModuleExporter.exe -script ./$1
+mono /tmp/AGSModuleExporter.exe -script ./$1
