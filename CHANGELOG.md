@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 1.2a
+
+Version:     1.2a  
+Author:      monkey0506  
+Date:        29 March 2009  
+Description: Fixed bug where `Stack.GetItemsArray` may request a 0-sized array.
+
 ## Version 1.2
 
 Version:     1.2  

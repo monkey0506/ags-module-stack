@@ -3,6 +3,6 @@
   <Name>Stack</Name>
   <Description>The Stack module introduces a vectorized stack type into which you can place any type of data. Great if you need to store data of various different types, or all of one type; this module can handle all of your data storage needs!</Description>
   <Author>monkey0506</Author>
-  <Version>v1.2</Version>
+  <Version>v1.2a</Version>
   <Key>918333590</Key>
 </AGSModule>
